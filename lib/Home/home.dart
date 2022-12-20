@@ -17,6 +17,8 @@ class HomeState extends State<Home>{
    Uri _url = Uri.parse('https://wa.me/');
    File file = File("/data/user/0/com.daviiid99.whatsappdirect/app_flutter/code.json");
    TextEditingController phoneNumber = TextEditingController(text: "");
+   TextEditingController message = TextEditingController(text: "");
+   bool phoneEntered = false;
    List<String> countryPrefix = [];
    List<String> countryFlag = [];
    List<String> countryName = [];
@@ -306,11 +308,60 @@ class HomeState extends State<Home>{
    }
 
    openWhatsAppChat(){
-     _url = (Uri.parse('whatsapp://send?phone="$choosedPrefix${phoneNumber.text.replaceAll(" ", "")}'));
+     _url = (Uri.parse('whatsapp://send?phone="$choosedPrefix${phoneNumber.text.replaceAll(" ", "")}"&text=${message.text}'));
      launchUrl(_url);
      setState(() {
        phoneNumber.text = ""; // Clear last phone number after pressing send button
+       message.text = ""; // Clear message if exists
+       phoneEntered = false;
      });
+   }
+
+   checkPhoneIsEmpty(String phone){
+     // Check if the user entered a phone number to show the meesage textfield
+     if (phone.isNotEmpty){
+       setState(() {
+         phoneEntered = true;
+       });
+     } else {
+       setState(() {
+         phoneEntered = false;
+       });
+     }
+   }
+
+   showToast(String message){
+     // Show a toast on display with the given message
+     //Used to show usefull information on display like errors, warnings,...
+
+
+     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+       behavior: SnackBarBehavior.floating,
+       width: 300,
+       margin: const EdgeInsets.only(bottom: 100.0),
+       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.only(
+         topLeft: Radius.circular(24),
+         topRight: Radius.circular(24),
+         bottomLeft: Radius.circular(24),
+         bottomRight: Radius.circular(24),
+       )),
+       content: Text(message, textAlign: TextAlign.center,),
+       elevation: -5.0,
+     ));
+   }
+
+   bool checkPhoneOnSubmit(){
+     // Before trying to open a chat on whatsapp check if the phone is empty or not
+     // Notify the user if the phone is empty
+
+     if (phoneEntered){
+       return true;
+
+     } else {
+       showToast("Enter a phone number before submitting");
+       return false;
+     }
+
    }
 
    showCountriesDialog() async {
@@ -482,6 +533,12 @@ class HomeState extends State<Home>{
                                  ),
                                  child: SizedBox(
                                      width: 200,
+                                     child : InkWell(
+                                       onFocusChange: (_){
+                                         setState(() {
+                                           checkPhoneIsEmpty(phoneNumber.text);
+                                         });
+                                       },
                                      child: TextField(
                                        textAlign: TextAlign.center,
                                        style: const TextStyle(fontSize: 25),
@@ -493,13 +550,16 @@ class HomeState extends State<Home>{
                                        ),
                                        controller: phoneNumber,
                                        keyboardType: TextInputType.phone,
-                                     )
+                                     ))
                                  )
                              ),
                              const Spacer(),
                              IconButton(
-                                 onPressed: () {
-                                   openWhatsAppChat();
+                                 onPressed: () async {
+                                   bool entered  = checkPhoneOnSubmit();
+                                   if (entered) {
+                                     openWhatsAppChat();
+                                   }
                                  },
                                  icon: const Icon(
                                    Icons.send_rounded, color: Colors.blueAccent,
@@ -509,6 +569,32 @@ class HomeState extends State<Home>{
                            ],
                          ),
                        ),
+
+                       const SizedBox(height: 20,),
+
+                       if(phoneEntered)
+                         ClipRRect(
+                           borderRadius: const BorderRadius.only(
+                             topRight: Radius.circular(24),
+                             topLeft: Radius.circular(24),
+                             bottomRight: Radius.circular(24),
+                             bottomLeft: Radius.circular(24),
+                           ),
+                         child : SizedBox(
+                          child : TextField(
+                           textAlign: TextAlign.center,
+                           decoration: const InputDecoration(
+                             filled: true,
+                             fillColor: Colors.white,
+                             hintText: "Escribe un mensaje",
+                             alignLabelWithHint: true
+                           ),
+
+                           style: const TextStyle(color: Colors.black, fontSize: 25),
+                           controller: message,
+                           keyboardType: TextInputType.multiline,
+                            maxLines: null,
+                         ))),
 
                        const SizedBox(height: 20,),
                      ]

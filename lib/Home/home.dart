@@ -386,6 +386,7 @@ class HomeState extends State<Home>{
                                    onTap: () {
                                      setState(() async{
                                        getLatestCode(countryPrefix[index]);
+                                       showToast("Choosed Country Code : ${countryPrefix[index]}(${countryName[index]})");
                                        Navigator.pop(context);
                                      });
 

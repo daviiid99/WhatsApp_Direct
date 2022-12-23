@@ -350,6 +350,77 @@ class HomeState extends State<Home>{
      ));
    }
 
+   userConfirmation(int index) async {
+     // User will be prompted to confirm or decline current selection
+
+     showDialog(
+         context: context,
+         builder: (BuildContext context){
+           return AlertDialog(
+             backgroundColor: Colors.transparent,
+             content: InkWell(
+               borderRadius: const BorderRadius.only(
+                 topRight: Radius.circular(24),
+                 topLeft: Radius.circular(24),
+                 bottomRight: Radius.circular(24),
+                 bottomLeft: Radius.circular(24),
+               ),
+               child: SizedBox(
+                 width: 400,
+                  height: 500,
+                  child : Column(
+                 children: [
+                   const Text("User Confirmation", style: TextStyle(color: Colors.white, fontSize: 25),),
+                   const SizedBox(height: 50,),
+                   Align(
+                     alignment: Alignment.center,
+                   child : Text("You're choosing the country code ${countryPrefix[index]} that references the country ${countryName[index]}", style: TextStyle(color: Colors.white),)),
+                   const SizedBox(height: 50,),
+                   Align(
+                   alignment: Alignment.center,
+                   child : Image.asset("assets/flags/${countryFlag[index]}", width: 150, height: 150,)),
+                   const SizedBox(height: 100,),
+                   Row(
+                     children: [
+                       const Spacer(),
+                       TextButton(
+                         style: TextButton.styleFrom(
+                           backgroundColor: Colors.green
+                         ),
+                           onPressed: (){
+                           // User confirmed selection
+                             setState(() {
+                               getLatestCode(countryPrefix[index]);
+                               showToast("Choosed Country Code : ${countryPrefix[index]}(${countryName[index]})");
+                               Navigator.pop(context);
+                               Navigator.pop(context);
+                             });
+
+                           },
+                           child: const Text("Confirm", style: TextStyle(color: Colors.white),)),
+                       const Spacer(),
+                       TextButton(
+                           style: TextButton.styleFrom(
+                               backgroundColor: Colors.red
+                           ),
+                           onPressed: (){
+                             // User declined selection
+                             Navigator.pop(context);
+
+                           },
+                           child: const Text("Decline", style: TextStyle(color: Colors.white),)),
+                       const Spacer(),
+                     ],
+                   )
+                 ],
+               ),
+             ),
+             ),
+           );
+     }
+     );
+   }
+
    bool checkPhoneOnSubmit(){
      // Before trying to open a chat on whatsapp check if the phone is empty or not
      // Notify the user if the phone is empty
@@ -385,9 +456,7 @@ class HomeState extends State<Home>{
                                return InkWell(
                                    onTap: () {
                                      setState(() async{
-                                       getLatestCode(countryPrefix[index]);
-                                       showToast("Choosed Country Code : ${countryPrefix[index]}(${countryName[index]})");
-                                       Navigator.pop(context);
+                                       userConfirmation(index);
                                      });
 
 

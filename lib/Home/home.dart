@@ -656,7 +656,7 @@ class HomeState extends State<Home>{
                            decoration: const InputDecoration(
                              filled: true,
                              fillColor: Colors.white,
-                             hintText: "Escribe un mensaje",
+                             hintText: "Write a message",
                              alignLabelWithHint: true
                            ),
 
